@@ -1,0 +1,24 @@
+# Anchorpoint Markup Language
+# Predefined Variables: e.g. ${path}
+# Environment Variables: e.g. ${MY_VARIABLE}
+# Full documentation: https://docs.anchorpoint.app/Actions/Reference
+
+version: 1.0
+action:
+  name: "Batch Rename Files from Set"
+
+  version: 1
+  id: "ap::utilities::rename"
+  category: "user"
+  type: python
+  author: "Anchorpoint Software GmbH"
+  description: "Renames all files based on the upper folder structure"
+  enable: true
+  #icon:
+  #  path: addFolderCSV.svg
+
+  script: "rename.py"
+
+  register:
+    file:
+      enable: true
