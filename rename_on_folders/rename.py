@@ -21,35 +21,33 @@ def batch_rename(selected_files, base_folder, in_subfolder=True):
         
         file_counts = {}  # Dictionary to count files by type
 
-        # Count files by their extension
-        for root, _, files in os.walk(base_folder):
-            for file in files:
-                file_extension = os.path.splitext(file)[1]
-                if file_extension not in file_counts:
-                    file_counts[file_extension] = 0
-                file_counts[file_extension] += 1
+        # Count files by their extension using selected_files
+        for file in selected_files:
+            file_extension = os.path.splitext(file)[1]
+            if file_extension not in file_counts:
+                file_counts[file_extension] = 0
+            file_counts[file_extension] += 1
 
-        # Rename files based on the new naming convention
+        # Rename files based on the new naming convention using selected_files
         for file_extension, count in file_counts.items():
             increment = 1  # Reset increment for each file type
             num_digits = len(str(count))  # Determine the number of digits needed
 
-            for root, _, files in os.walk(base_folder):
-                for file in files:
-                    if os.path.splitext(file)[1] == file_extension:
-                        new_file_name = f"{parent_folder}_{grandparent_folder}_{increment:0{num_digits}d}{file_extension}".replace("._","")
-                        
-                        # Rename the file (keeping it in the same folder)
-                        old_file_path = os.path.join(root, file)
-                        new_file_path = os.path.join(root, new_file_name)
-                        
-                        os.rename(old_file_path, new_file_path)
+            for file in selected_files:
+                if os.path.splitext(file)[1] == file_extension:
+                    new_file_name = f"{parent_folder}_{grandparent_folder}_{increment:0{num_digits}d}{file_extension}".replace("._","")
+                    
+                    # Rename the file (keeping it in the same folder)
+                    old_file_path = file
+                    new_file_path = os.path.join(os.path.dirname(file), new_file_name)
+                    
+                    os.rename(old_file_path, new_file_path)
 
-                        renamed_count += 1
-                        progress.set_text(f"Renaming {old_file_path} to {new_file_name}")
-                        progress.report_progress(renamed_count / total_files)
+                    renamed_count += 1
+                    progress.set_text(f"Renaming {old_file_path} to {new_file_name}")
+                    progress.report_progress(renamed_count / total_files)
 
-                        increment += 1  # Increment for the next file of the same type
+                    increment += 1  # Increment for the next file of the same type
 
         progress.finish()
         ap.UI().show_success("Files Renamed Successfully", f"{renamed_count} files have been renamed.")
