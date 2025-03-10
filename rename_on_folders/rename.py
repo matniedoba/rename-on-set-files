@@ -58,6 +58,20 @@ def main():
         ctx.run_async(batch_rename, selected_files,base_folder)
         dialog.close()
 
+    def checkbox_checked_cb(dialog,value):
+        dialog.set_value("text_preview", create_preview(value))
+
+    def create_preview(in_subfolder):
+        if(in_subfolder):
+            parent_folder = os.path.basename(os.path.dirname(base_folder))  # Get the name of the parent folder
+            grandparent_folder = os.path.basename(os.path.dirname(os.path.dirname(base_folder))) 
+            name_preview = parent_folder+"_"+grandparent_folder+"_"+digits+"1"+file_extension
+            return name_preview
+        else:
+            parent_folder = os.path.basename(os.path.dirname(base_folder))
+            name_preview = os.path.basename(base_folder)+"_"+parent_folder+"_"+digits+"1"+file_extension
+            return name_preview
+
     ctx = ap.get_context() 
 
     selected_files = ctx.selected_files
@@ -66,16 +80,16 @@ def main():
     digits = "0" * (len(str(total_files)) - 1)
     file_extension = os.path.splitext(ctx.path)[1]
 
-    parent_folder = os.path.basename(os.path.dirname(base_folder))  # Get the name of the parent folder
-    grandparent_folder = os.path.basename(os.path.dirname(os.path.dirname(base_folder))) 
-
-    name_preview = parent_folder+"_"+grandparent_folder+"_"+digits+"1"+file_extension
+    
 
     dialog = ap.Dialog()
     dialog.title = "Rename Preview"
+    dialog.add_checkbox(text="Files are in a subfolder",var="skip_base_folder",default=True,callback=checkbox_checked_cb)
+    dialog.add_info("E.g. if your raw files ( e.g. .CR2,.NEF,.ARW) are in a folder called 'RAW'")
+    dialog.add_empty()
 
     dialog.add_info("File batches are grouped by file extension. The new file name will look similar to this:")
-    dialog.add_text(name_preview)
+    dialog.add_text(text=create_preview(True),var="text_preview")
 
     dialog.add_info(f"Continue to rename {total_files} files")
     dialog.add_button("Continue", callback=button_clicked_cb)
