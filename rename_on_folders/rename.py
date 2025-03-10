@@ -1,7 +1,7 @@
 import anchorpoint as ap
 import os
 
-def batch_rename(selected_files, base_folder):
+def batch_rename(selected_files, base_folder, in_subfolder=True):
     progress = ap.Progress("Renaming Files", infinite=False)
     progress.set_cancelable(True)
 
@@ -10,8 +10,15 @@ def batch_rename(selected_files, base_folder):
 
     try:
         base_folder_name = os.path.basename(base_folder)  # Get the name of the base folder
-        parent_folder = os.path.basename(os.path.dirname(base_folder))  # Get the name of the parent folder
-        grandparent_folder = os.path.basename(os.path.dirname(os.path.dirname(base_folder)))  # Get the name of the grandparent folder
+        
+        # Determine parent and grandparent folder based on in_subfolder option
+        if in_subfolder:
+            parent_folder = os.path.basename(os.path.dirname(base_folder))  # Get the name of the parent folder
+            grandparent_folder = os.path.basename(os.path.dirname(os.path.dirname(base_folder)))  # Get the name of the grandparent folder
+        else:
+            parent_folder = base_folder_name  # Use base folder as parent
+            grandparent_folder = os.path.basename(os.path.dirname(base_folder))  # Use parent as grandparent
+        
         file_counts = {}  # Dictionary to count files by type
 
         # Count files by their extension
@@ -55,7 +62,8 @@ def batch_rename(selected_files, base_folder):
 def main():
 
     def button_clicked_cb(dialog):
-        ctx.run_async(batch_rename, selected_files,base_folder)
+        in_subfolder = dialog.get_value("skip_base_folder")
+        ctx.run_async(batch_rename, selected_files, base_folder, in_subfolder)
         dialog.close()
 
     def checkbox_checked_cb(dialog,value):
