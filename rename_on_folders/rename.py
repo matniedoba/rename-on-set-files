@@ -31,7 +31,7 @@ def batch_rename(selected_files, base_folder, in_subfolder=True):
         # Rename files based on the new naming convention using selected_files
         for file_extension, count in file_counts.items():
             increment = 1  # Reset increment for each file type
-            num_digits = len(str(count))  # Determine the number of digits needed
+            num_digits = 4  # Determine the number of digits needed
 
             for file in selected_files:
                 if os.path.splitext(file)[1] == file_extension:
@@ -71,11 +71,11 @@ def main():
         if(in_subfolder):
             parent_folder = os.path.basename(os.path.dirname(base_folder))  # Get the name of the parent folder
             grandparent_folder = os.path.basename(os.path.dirname(os.path.dirname(base_folder))) 
-            name_preview = parent_folder+"_"+grandparent_folder+"_"+digits+"1"+file_extension
+            name_preview = parent_folder+"_"+grandparent_folder+"_0001"+file_extension
             return name_preview
         else:
             parent_folder = os.path.basename(os.path.dirname(base_folder))
-            name_preview = os.path.basename(base_folder)+"_"+parent_folder+"_"+digits+"1"+file_extension
+            name_preview = os.path.basename(base_folder)+"_"+parent_folder+"_0001"+file_extension
             return name_preview
 
     ctx = ap.get_context() 
@@ -83,7 +83,6 @@ def main():
     selected_files = ctx.selected_files
     base_folder = os.path.dirname(ctx.path) 
     total_files = len(selected_files)
-    digits = "0" * (len(str(total_files)) - 1)
     file_extension = os.path.splitext(ctx.path)[1]
 
     
