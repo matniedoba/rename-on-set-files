@@ -1,5 +1,17 @@
 import anchorpoint as ap
 import os
+import re
+
+def sort_files(files):
+    def get_numeric_part(filename):
+        # Extract numeric part from filename
+        match = re.search(r'(\d+)', os.path.basename(filename))
+        if match:
+            return int(match.group(1))
+        return 0  # If no number found, treat as 0
+    
+    # Sort files based on numeric part in filename
+    return sorted(files, key=get_numeric_part)
 
 def batch_rename(selected_files, base_folder, in_subfolder=True):
     progress = ap.Progress("Renaming Files", infinite=False)
@@ -7,6 +19,8 @@ def batch_rename(selected_files, base_folder, in_subfolder=True):
 
     total_files = len(selected_files)
     renamed_count = 0
+
+    
 
     try:
         base_folder_name = os.path.basename(base_folder)  # Get the name of the base folder
@@ -33,21 +47,24 @@ def batch_rename(selected_files, base_folder, in_subfolder=True):
             increment = 1  # Reset increment for each file type
             num_digits = 4  # Determine the number of digits needed
 
-            for file in selected_files:
-                if os.path.splitext(file)[1] == file_extension:
-                    new_file_name = f"{parent_folder}_{grandparent_folder}_{increment:0{num_digits}d}{file_extension}".replace("._","")
-                    
-                    # Rename the file (keeping it in the same folder)
-                    old_file_path = file
-                    new_file_path = os.path.join(os.path.dirname(file), new_file_name)
-                    
-                    os.rename(old_file_path, new_file_path)
+            # Get files of current extension and sort them
+            current_extension_files = [f for f in selected_files if os.path.splitext(f)[1] == file_extension]
+            sorted_files = sort_files(current_extension_files)
 
-                    renamed_count += 1
-                    progress.set_text(f"Renaming {old_file_path} to {new_file_name}")
-                    progress.report_progress(renamed_count / total_files)
+            for file in sorted_files:
+                new_file_name = f"{parent_folder}_{grandparent_folder}_{increment:0{num_digits}d}{file_extension}".replace("._","")
+                
+                # Rename the file (keeping it in the same folder)
+                old_file_path = file
+                new_file_path = os.path.join(os.path.dirname(file), new_file_name)
+                
+                os.rename(old_file_path, new_file_path)
 
-                    increment += 1  # Increment for the next file of the same type
+                renamed_count += 1
+                progress.set_text(f"Renaming {old_file_path} to {new_file_name}")
+                progress.report_progress(renamed_count / total_files)
+
+                increment += 1  # Increment for the next file of the same type
 
         progress.finish()
         ap.UI().show_success("Files Renamed Successfully", f"{renamed_count} files have been renamed.")
