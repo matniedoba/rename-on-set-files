@@ -3,15 +3,8 @@ import os
 import re
 
 def sort_files(files):
-    def get_numeric_part(filename):
-        # Extract numeric part from filename
-        match = re.search(r'(\d+)', os.path.basename(filename))
-        if match:
-            return int(match.group(1))
-        return 0  # If no number found, treat as 0
-    
-    # Sort files based on numeric part in filename
-    return sorted(files, key=get_numeric_part)
+    # Sort by the base filename (without extension), then by extension
+    return sorted(files, key=lambda f: os.path.splitext(os.path.basename(f))[0])
 
 def batch_rename(selected_files, base_folder, in_subfolder=True):
     progress = ap.Progress("Renaming Files", infinite=False)
@@ -49,7 +42,10 @@ def batch_rename(selected_files, base_folder, in_subfolder=True):
 
             # Get files of current extension and sort them
             current_extension_files = [f for f in selected_files if os.path.splitext(f)[1] == file_extension]
+            print(current_extension_files)
+
             sorted_files = sort_files(current_extension_files)
+            print(sorted_files)
 
             for file in sorted_files:
                 new_file_name = f"{parent_folder}_{grandparent_folder}_{increment:0{num_digits}d}{file_extension}".replace("._","")
@@ -118,4 +114,4 @@ def main():
     dialog.show()    
 
 if __name__ == "__main__":
-    main() 
+    main()
